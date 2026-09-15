@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS users (id BIGSERIAL PRIMARY KEY,email TEXT UNIQUE NOT NULL,password_hash TEXT NOT NULL,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS codes (id BIGSERIAL PRIMARY KEY,short_code VARCHAR(12) UNIQUE NOT NULL,pin_hash TEXT NOT NULL,status TEXT NOT NULL DEFAULT 'unclaimed' CHECK(status IN ('unclaimed','active','inactive')),claimed_by_user_id BIGINT REFERENCES users(id) ON DELETE SET NULL,destination_url TEXT,destination_type TEXT CHECK(destination_type IN ('google','booking','instagram','website','custom')),scan_count INTEGER NOT NULL DEFAULT 0,created_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+CREATE TABLE IF NOT EXISTS pin_attempts (id BIGSERIAL PRIMARY KEY,code_id BIGINT NOT NULL REFERENCES codes(id) ON DELETE CASCADE,ip_address TEXT NOT NULL,attempted_at TIMESTAMPTZ NOT NULL DEFAULT NOW());
+CREATE INDEX IF NOT EXISTS idx_codes_owner ON codes(claimed_by_user_id);
+CREATE INDEX IF NOT EXISTS idx_pin_attempts_window ON pin_attempts(code_id,ip_address,attempted_at);
