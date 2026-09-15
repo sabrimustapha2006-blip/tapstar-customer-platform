@@ -1,0 +1,2 @@
+import pg from "pg";import fs from "node:fs/promises";import path from "node:path";import {fileURLToPath} from "node:url";
+const pool=new pg.Pool({connectionString:process.env.DATABASE_URL,ssl:process.env.NODE_ENV==="production"?{rejectUnauthorized:false}:false});const root=path.dirname(path.dirname(fileURLToPath(import.meta.url)));await pool.query(await fs.readFile(path.join(root,"migrations/001_init.sql"),"utf8"));console.log("Migration completed");await pool.end();
